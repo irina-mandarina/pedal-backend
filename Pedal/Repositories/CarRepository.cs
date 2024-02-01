@@ -10,7 +10,7 @@ namespace Pedal.Repositories
         private readonly IMongoCollection<Car> _carsCollection;
 
         public CarRepository(
-            IOptions<CarStoreDatabaseSettings> carStoreDatabaseSettings)
+            IOptions<StoreDatabaseSettings> carStoreDatabaseSettings)
         {
             var mongoClient = new MongoClient(
                 carStoreDatabaseSettings.Value.ConnectionString);
