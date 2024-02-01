@@ -6,6 +6,9 @@
         public bool SwipeDirection { get; set; }
         public DateTime SwipeTime { get; set; }
         public int SwipedId { get; set; }
-        public int SwiperId { get; set;}
+        public int SwiperId { get; set; }
+
+        public string SwipeDirectionString { get => SwipeDirection ? "Right" : "Left";
+}
     }
 }

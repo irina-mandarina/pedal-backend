@@ -14,7 +14,7 @@
         public int Horsepower { get; set; }
         public List<Passions> Passions { get; set; } = new List<Passions>();
         public List<CarCulture> CarCultures { get; set; } = new List<CarCulture>();
-        public required List<string> Pictures { get; set;}
+        public required List<string> PictureURLs { get; set;}
 
 
 
