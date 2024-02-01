@@ -2,7 +2,7 @@
 {
     public class Swipe
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public bool SwipeDirection { get; set; }
         public DateTime SwipeTime { get; set; }
         public int SwipedId { get; set; }
