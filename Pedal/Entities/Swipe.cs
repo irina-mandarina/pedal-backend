@@ -1,8 +1,15 @@
-﻿namespace Pedal.Entities
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+
+namespace Pedal.Entities
 {
     public class Swipe
     {
+
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
+
         public bool SwipeDirection { get; set; }
         public DateTime SwipeTime { get; set; }
         public int SwipedId { get; set; }
