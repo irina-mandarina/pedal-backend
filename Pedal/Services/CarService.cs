@@ -11,5 +11,7 @@ namespace Pedal.Services
         }
 
         public Car SignUp(string email, string password, string brand, string model, int yearOdProd, EngineType engineType, TransmissionType transmissionType, int mileage, int horsepower, List<Passions> passions, List<CarCulture> carCultures, List<string> pictureURLs) { throw new NotImplementedException(); }
+
+        public Car LogIn(string email, string encryptedPassword) { throw new NotImplementedException(); }
     }
 }

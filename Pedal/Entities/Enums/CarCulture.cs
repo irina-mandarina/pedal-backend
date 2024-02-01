@@ -1,4 +1,4 @@
-﻿namespace Pedal.Entities
+﻿namespace Pedal.Entities.Enums
 {
     public enum CarCulture
     {
