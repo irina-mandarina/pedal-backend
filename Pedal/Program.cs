@@ -2,7 +2,7 @@ using Pedal.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<CarStoreDatabaseSettings>(
+builder.Services.Configure<StoreDatabaseSettings>(
     builder.Configuration.GetSection("CarStoreDatabase"));
 
 // Add services to the container.
