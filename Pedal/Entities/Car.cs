@@ -1,10 +1,15 @@
-﻿using Pedal.Entities.Enums;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Pedal.Entities.Enums;
 
 namespace Pedal.Entities
 {
     public class Car
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
+
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required string Brand { get; set; }
