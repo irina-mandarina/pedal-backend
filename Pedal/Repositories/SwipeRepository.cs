@@ -10,16 +10,16 @@ namespace Pedal.Repositories
         private readonly IMongoCollection<Swipe> _swipesCollection;
 
         public SwipeRepository(
-            IOptions<StoreDatabaseSettings> carStoreDatabaseSettings)
+            IOptions<StoreDatabaseSettings> swipeStoreDatabaseSettings)
         {
             var mongoClient = new MongoClient(
-                carStoreDatabaseSettings.Value.ConnectionString);
+                swipeStoreDatabaseSettings.Value.ConnectionString);
 
             var mongoDatabase = mongoClient.GetDatabase(
-                carStoreDatabaseSettings.Value.DatabaseName);
+                swipeStoreDatabaseSettings.Value.DatabaseName);
 
             _swipesCollection = mongoDatabase.GetCollection<Swipe>(
-                carStoreDatabaseSettings.Value.SwipesCollectionName);
+                swipeStoreDatabaseSettings.Value.SwipesCollectionName);
         }
 
         public async Task<List<Swipe>> GetAsync() =>
