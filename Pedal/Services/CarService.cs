@@ -1,10 +1,18 @@
 ﻿using Pedal.Entities;
 using Pedal.Entities.Enums;
+using Pedal.Repositories;
 
 namespace Pedal.Services
 {
     public class CarService
     {
+        public CarRepository carRepository;
+
+        public CarService(CarRepository carRepository)
+        { 
+            this.carRepository = carRepository;
+        }
+
         public Car GetCarById(int id)
         {
             throw new NotImplementedException();
