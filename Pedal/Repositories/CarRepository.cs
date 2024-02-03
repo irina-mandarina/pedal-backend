@@ -28,7 +28,7 @@ namespace Pedal.Repositories
         public async Task<Car?> GetAsync(string id) =>
             await _carsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-        public async Task CreateAsync(Car newCar) =>
+        private async Task CreateAsync(Car newCar) =>
             await _carsCollection.InsertOneAsync(newCar);
 
         public async Task UpdateAsync(string id, Car updatedCar) =>
@@ -36,5 +36,14 @@ namespace Pedal.Repositories
 
         public async Task RemoveAsync(string id) =>
             await _carsCollection.DeleteOneAsync(x => x.Id == id);
+
+        public async Task<Car> CreateCarAsync(Car newCar)
+        {
+            await this.CreateAsync(newCar); // Assuming CreateAsync returns void
+
+            // The newCar object now has the ID assigned by the database
+            return newCar;
+        }
+
     }
 }
