@@ -1,4 +1,5 @@
-﻿using Pedal.Entities;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Pedal.Entities;
 using Pedal.Entities.Enums;
 using Pedal.Repositories;
 
@@ -13,7 +14,19 @@ namespace Pedal.Services
             this.carRepository = carRepository;
         }
 
-        public Car GetCarById(string id)
+        public List<Car> GetCars()
+        {
+            var cars = carRepository.GetAsync().Result;
+
+            if (cars == null || !cars.Any())
+            {
+                throw new InvalidOperationException("No cars found");
+            }
+
+            return cars;
+        }
+
+        public Car GetCarById(string id)    
         {
             var car = carRepository.GetAsync(id).Result;
             if (car == null)
@@ -23,9 +36,9 @@ namespace Pedal.Services
             return car;
         }
 
-        public Car SignUp(string email, string password, string brand, string model, 
-            int yearOdProd, EngineType engineType, TransmissionType transmissionType,
-            int mileage, int horsepower, List<Passions> passions, List<CarCulture> carCultures, List<string> pictureURLs) 
+        public async Task<Car> SignUp(string email, string password, string brand, string model,
+            int yearOfProd, EngineType engineType, TransmissionType transmissionType,
+            int mileage, int horsepower, List<Passions> passions, List<CarCulture> carCultures, List<string> pictureURLs)
         {
             Car car = new()
             {
@@ -33,7 +46,7 @@ namespace Pedal.Services
                 Password = password,
                 Brand = brand,
                 Model = model,
-                YearOfProduction = yearOdProd,
+                YearOfProduction = yearOfProd,
                 Engine = engineType,
                 Transmission = transmissionType,
                 Mileage = mileage,
@@ -43,17 +56,29 @@ namespace Pedal.Services
                 PictureURLs = pictureURLs
             };
 
-            return carRepository.CreateCarAsync(car).Result;
+            return await carRepository.CreateCarAsync(car);
         }
+
 
         public Car LogIn(string email, string encryptedPassword)
         {
             throw new NotImplementedException();
         }
 
-        public Car UpdateCarInfo(Car car)
+        public async Task<Car> UpdateCarInfo(string id, Car updatedCar)
         {
-            throw new NotImplementedException();
+            _ = GetCarById(id);
+            await carRepository.UpdateAsync(id, updatedCar);
+            return updatedCar;
+        }
+
+        public async Task<Car> DeleteCar(string id)
+        {
+            Car car = GetCarById(id);
+            await carRepository.RemoveAsync(id);
+            //what should i return my beloved
+            return car;
+
         }
     }
 }
