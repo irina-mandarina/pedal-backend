@@ -1,6 +1,7 @@
 ﻿using Pedal.Entities;
 using Pedal.Entities.Enums;
 using Pedal.Repositories;
+using BCrypt;
 
 namespace Pedal.Services
 {
@@ -27,10 +28,22 @@ namespace Pedal.Services
             int yearOdProd, EngineType engineType, TransmissionType transmissionType,
             int mileage, int horsepower, List<Passions> passions, List<CarCulture> carCultures, List<string> pictureURLs) 
         {
+            if (!ValidationService.IsValidEmail(email))
+            {
+                throw new InvalidDataException("Invalid email.");
+            }
+            if (CarWithEmailExists(email))
+            {
+                throw new InvalidOperationException($"Email: {email} already registered.");
+            }
+            if (!ValidationService.IsValidPassword(password))
+            {
+                throw new InvalidDataException("Passwords must contain at least 8 symbols.");
+            }
             Car car = new()
             {
                 Email = email,
-                Password = password,
+                Password = BCrypt.Net.BCrypt.HashPassword(password),
                 Brand = brand,
                 Model = model,
                 YearOfProduction = yearOdProd,
@@ -46,14 +59,49 @@ namespace Pedal.Services
             return carRepository.CreateCarAsync(car).Result;
         }
 
-        public Car LogIn(string email, string encryptedPassword)
+        public Car LogIn(string email, string password)
         {
-            throw new NotImplementedException();
+            if (!CarWithEmailExists(email))
+            {
+                throw new InvalidOperationException($"Car with email: {email} does not exist.");
+            }
+            var car = carRepository.GetCarByEmailAsync(email).Result;
+            if (BCrypt.Net.BCrypt.Verify(password, car.Password))
+            {
+                return car;
+            }
+            else throw new InvalidDataException("Wrong password.");
         }
 
         public Car UpdateCarInfo(Car car)
         {
-            throw new NotImplementedException();
+            if (!CarWithIdExists(car.Id))
+            {
+                throw new InvalidOperationException($"Car with id: {car.Id} does not exist.");
+            }
+            return carRepository.UpdateCarAsync(car).Result;
+
+        }
+
+        public void DeleteCar(Car car)
+        {
+            if (!CarWithIdExists(car.Id)) 
+            {
+                throw new InvalidOperationException($"Car with id: {car.Id} does not exist.");
+            }
+            carRepository.RemoveAsync(car.Id).Wait();
+        }
+
+        private bool CarWithIdExists(string carId)
+        {
+            var car = carRepository.GetAsync(carId).Result;
+            return car != null;
+        }
+
+        private bool CarWithEmailExists(string email)
+        {
+            var car = carRepository.GetCarByEmailAsync(email).Result;
+            return car != null;
         }
     }
 }
