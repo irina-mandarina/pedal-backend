@@ -1,5 +1,6 @@
 using Pedal.Models;
 using Pedal.Repositories;
+using Pedal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,10 @@ builder.Services.Configure<StoreDatabaseSettings>(
 builder.Services.AddSingleton<CarRepository>();
 builder.Services.AddSingleton<SwipeRepository>();
 builder.Services.AddSingleton<MessageRepository>();
+
+builder.Services.AddSingleton<CarService>();
+builder.Services.AddSingleton<SwipeService>();
+builder.Services.AddSingleton<MessageService>();
 
 // Add services to the container.
 

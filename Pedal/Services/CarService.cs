@@ -92,7 +92,7 @@ namespace Pedal.Services
             carRepository.RemoveAsync(car.Id).Wait();
         }
 
-        private bool CarWithIdExists(string carId)
+        public bool CarWithIdExists(string carId)
         {
             var car = carRepository.GetAsync(carId).Result;
             return car != null;
