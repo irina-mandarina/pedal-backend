@@ -1,4 +1,4 @@
-﻿using Pedal.Entities;
+using Pedal.Entities;
 using Pedal.Entities.Enums;
 using Pedal.Repositories;
 using BCrypt;
