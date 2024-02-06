@@ -1,4 +1,4 @@
-using Pedal.Entities;
+﻿using Pedal.Entities;
 using Pedal.Entities.Enums;
 using Pedal.Repositories;
 using BCrypt;
@@ -25,7 +25,7 @@ namespace Pedal.Services
         }
 
         public Car SignUp(string email, string password, string brand, string model, 
-            int yearOdProd, EngineType engineType, TransmissionType transmissionType,
+            int yearOfProd, EngineType engineType, TransmissionType transmissionType,
             int mileage, int horsepower, List<Passions> passions, List<CarCulture> carCultures, List<string> pictureURLs) 
         {
             if (!ValidationService.IsValidEmail(email))
@@ -46,7 +46,7 @@ namespace Pedal.Services
                 Password = BCrypt.Net.BCrypt.HashPassword(password),
                 Brand = brand,
                 Model = model,
-                YearOfProduction = yearOdProd,
+                YearOfProduction = yearOfProd,
                 Engine = engineType,
                 Transmission = transmissionType,
                 Mileage = mileage,
