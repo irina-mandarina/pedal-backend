@@ -41,9 +41,9 @@ namespace Pedal.Controllers
         }
 
         [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(Car updatedCar)
+        public async Task<IActionResult> Update([FromBody] Car updatedCar)
         {
-            var newCar = await _carsService.UpdateCarInfoAsync( updatedCar);
+            var newCar = await _carsService.UpdateCarInfoAsync(updatedCar);
 
             return Ok(updatedCar);
         }
