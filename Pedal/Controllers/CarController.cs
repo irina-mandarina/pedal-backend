@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Pedal.Services;
 using Pedal.Entities;
-using Pedal.Models;
-using Pedal.Repositories;
-using Pedal.Entities.Enums;
 
 namespace Pedal.Controllers
 {
@@ -18,15 +14,13 @@ namespace Pedal.Controllers
             _carsService = carsService;
 
         [HttpGet]
-        //make async when neck hurts less
-        public async Task<List<Car>> Get() =>
-            _carsService.GetCars();
+        public async Task<Car[]> Get() =>
+            await _carsService.GetCarsAsync();
 
         [HttpGet("{id:length(24)}")]
-        //make async
         public async Task<ActionResult<Car>> Get(string id)
         {
-            var car = _carsService.GetCarById(id);
+            var car = await _carsService.GetCarByIdAsync(id);
 
             if (car is null)
             {
@@ -37,20 +31,19 @@ namespace Pedal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(string email, string password, string brand, string model,
-            int yearOfProd, EngineType engineType, TransmissionType transmissionType,
-            int mileage, int horsepower, List<Passions> passions, List<CarCulture> carCultures, List<string> pictureURLs)
+        public async Task<IActionResult> Post(
+            [FromBody] Car car)
         {
 
-            Car newCar = await _carsService.SignUp(email, password, brand, model, yearOfProd, engineType, transmissionType, mileage, horsepower, passions, carCultures, pictureURLs);
+            var newCar = await _carsService.SignUpAsync(car);
 
             return CreatedAtAction(nameof(Get), new { id = newCar.Id }, newCar);
         }
 
         [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(string id, Car updatedCar)
+        public async Task<IActionResult> Update(Car updatedCar)
         {
-            Car newCar = await _carsService.UpdateCarInfo(id, updatedCar);
+            var newCar = await _carsService.UpdateCarInfoAsync( updatedCar);
 
             return Ok(updatedCar);
         }
@@ -59,7 +52,7 @@ namespace Pedal.Controllers
         public async Task<IActionResult> Delete(string id)
         {
 
-            await _carsService.DeleteCar(id);
+            await _carsService.DeleteCarAsync(id);
             return Ok();
         }
     }
