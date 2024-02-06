@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pedal.Services;
 using Pedal.Entities;
+using Pedal.Models;
 
 namespace Pedal.Controllers
 {
@@ -31,13 +32,12 @@ namespace Pedal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(
-            [FromBody] Car car)
+        public async Task<IActionResult> Post([FromBody] CarRequest car)
         {
 
-            var newCar = await _carsService.SignUpAsync(car);
+            await _carsService.SignUpAsync(car);
 
-            return CreatedAtAction(nameof(Get), new { id = newCar.Id }, newCar);
+            return Ok(car);
         }
 
         [HttpPut("{id:length(24)}")]
