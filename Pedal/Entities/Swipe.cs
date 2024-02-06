@@ -12,9 +12,8 @@ namespace Pedal.Entities
 
         public bool SwipeDirection { get; set; }
         public DateTime SwipeTime { get; set; }
-        public int SwipedId { get; set; }
-
-        public int SwiperId { get; set; }
+        public string SwipedId { get; set; }
+        public string SwiperId { get; set; }
 
         public string SwipeDirectionString { get => SwipeDirection ? "Right" : "Left";
 }
