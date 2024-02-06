@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pedal.Services;
 using Pedal.Entities;
-using Pedal.Models;
-using Pedal.Repositories;
-using Pedal.Entities.Enums;
 
 namespace Pedal.Controllers
 {
@@ -12,72 +8,52 @@ namespace Pedal.Controllers
     [Route("api/[controller]")]
     public class CarController : ControllerBase
     {
-        public CarService _carsService;
+        private readonly CarService _carsService;
 
         public CarController(CarService carsService) =>
             _carsService = carsService;
 
-        //not implemented
         [HttpGet]
-        public async Task<List<Car>> Get()
-        {
-            return new List<Car>();
-        }
+        public async Task<Car[]> Get() =>
+            await _carsService.GetCarsAsync();
 
         [HttpGet("{id:length(24)}")]
-        public ActionResult<Car> Get(string id)
+        public async Task<ActionResult<Car>> Get(string id)
         {
-            //var car = _carsService.GetCarById(id);
+            var car = await _carsService.GetCarByIdAsync(id);
 
-            //if (car is null)
-            //{
-            //    return NotFound();
-            //}
+            if (car is null)
+            {
+                return NotFound();
+            }
 
-            //return car;
-            return Ok();
-
+            return car;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Car newCar)
+        public async Task<IActionResult> Post(
+            [FromBody] Car car)
         {
-            //await _carsService.CreateAsync(newCar);
 
-            //return CreatedAtAction(nameof(Get), new { id = newCar.Id }, newCar);
-            return Ok();
+            var newCar = await _carsService.SignUpAsync(car);
+
+            return CreatedAtAction(nameof(Get), new { id = newCar.Id }, newCar);
         }
 
         [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(string id, Car updatedCar)
+        public async Task<IActionResult> Update(Car updatedCar)
         {
-            //var car = await _carsService.GetAsync(id);
+            var newCar = await _carsService.UpdateCarInfoAsync( updatedCar);
 
-            //if (car is null)
-            //{
-            //    return NotFound();
-            //}
-
-            //updatedCar.Id = car.Id;
-
-            //await _carsService.UpdateAsync(id, updatedCar);
-
-            return NoContent();
+            return Ok(updatedCar);
         }
 
         [HttpDelete("{id:length(24)}")]
         public async Task<IActionResult> Delete(string id)
         {
-            //var car = await _carsService.GetAsync(id);
 
-            //if (car is null)
-            //{
-            //    return NotFound();
-            //}
-
-            //await _carsService.RemoveAsync(id);
-
-            return NoContent();
+            await _carsService.DeleteCarAsync(id);
+            return Ok();
         }
     }
 }
