@@ -65,5 +65,11 @@ namespace Pedal.Repositories
         {
             return await _swipesCollection.Find(x => x.SwipedId.Equals(swipedId)).ToListAsync();
         }
+
+        public async Task<List<Swipe>?> GetMatchesAsync(string carId)
+        {
+            var carsTheySwipedRightOn = (await GetSwipesBySwiperIdAsync(carId)).Where(x => x.SwipeDirection == true).Select(x => x.SwipedId).ToList();
+            return _swipesCollection.Find(x => x.SwipeDirection == true && carsTheySwipedRightOn.Contains(x.SwiperId)).ToList();
+        }
     }
 }

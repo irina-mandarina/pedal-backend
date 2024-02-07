@@ -98,5 +98,15 @@ namespace Pedal.Services
         {
             return (await swipeRepository.GetBySwiperAndSwipedAsync(swiperId, swipedId)) != null;
         }
+
+        public async Task<Car[]?> GetMatches(string carId)
+        {
+            var swipes = await swipeRepository.GetMatchesAsync(carId);
+            if (swipes == null)
+                return null;
+            var tasks = swipes.Select(async s => await carService.GetCarByIdAsync(s.SwipedId));
+            var cars = await Task.WhenAll(tasks);
+            return cars;
+        }
     }
 }
