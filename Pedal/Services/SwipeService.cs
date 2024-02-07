@@ -30,6 +30,7 @@ namespace Pedal.Services
             }
             return await swipeRepository.CreateSwipeAsync(new Swipe()
             {
+                Id = "",
                 SwipedId = swipedId,
                 SwiperId = swiperId,
                 SwipeDirection = swipeDirection,
