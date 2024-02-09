@@ -36,5 +36,17 @@ namespace Pedal.Repositories
 
         public async Task RemoveAsync(string id) =>
             await _messagesCollection.DeleteOneAsync(x => x.Id == id);
+
+        public async Task<Message> CreateMessageAsync(Message message)
+        {
+            await this.CreateAsync(message);
+            return message;
+        }
+
+        public async Task<Message> UpdateMessageAsync(Message updatedMessage)
+        {
+            await _messagesCollection.ReplaceOneAsync(x => x.Id == updatedMessage.Id, updatedMessage);
+            return updatedMessage;
+        }
     }
 }
