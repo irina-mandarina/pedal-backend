@@ -58,7 +58,7 @@ namespace Pedal.Services
             {
                 throw new InvalidDataException($"Car (which is swiping) with id: {swiperId} does not exist.");
             }
-            var swipes =  await swipeRepository.GetSwipesBySwiperIdAsync(swiperId, swipeDirection);
+            var swipes =  await GetSwipesBySwiperIdAsync(swiperId, swipeDirection);
             return await Task.WhenAll(swipes.Select(async x => await carService.GetCarByIdAsync(x.SwiperId)));
         }
 
