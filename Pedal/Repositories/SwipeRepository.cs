@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Pedal.Entities;
+using Pedal.Entities.Enums;
 using Pedal.Models;
 
 namespace Pedal.Repositories
@@ -56,14 +57,20 @@ namespace Pedal.Repositories
             return await _swipesCollection.Find(x => x.SwiperId == swiperId && x.SwipedId == swipedId).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Swipe>> GetSwipesBySwiperIdAsync(string swiperId)
+        public async Task<List<Swipe>> GetSwipesBySwiperIdAsync(string swiperId, SwipeDirection? swipeDirection = null)
         {
-            return await _swipesCollection.Find(x => x.SwiperId.Equals(swiperId)).ToListAsync();
+            return await _swipesCollection.Find(x => x.SwiperId.Equals(swiperId) && (swipeDirection == null || (swipeDirection != null && x.SwipeDirection == swipeDirection))).ToListAsync();
         }
 
-        public async Task<List<Swipe>> GetSwipesBySwipedIdAsync(string swipedId)
+        public async Task<List<Swipe>> GetSwipesBySwipedIdAsync(string swipedId, SwipeDirection? swipeDirection = null)
         {
-            return await _swipesCollection.Find(x => x.SwipedId.Equals(swipedId)).ToListAsync();
+            return await _swipesCollection.Find(x => x.SwipedId.Equals(swipedId) && (swipeDirection == null || (swipeDirection != null && x.SwipeDirection == swipeDirection))).ToListAsync();
+        }
+
+        public async Task<List<Swipe>?> GetMatchesAsync(string carId)
+        {
+            var carsTheySwipedRightOn = (await GetSwipesBySwiperIdAsync(carId)).Where(x => x.SwipeDirection == SwipeDirection.RIGHT).Select(x => x.SwipedId).ToList();
+            return _swipesCollection.Find(x => x.SwipeDirection == SwipeDirection.RIGHT && carsTheySwipedRightOn.Contains(x.SwiperId)).ToList();
         }
     }
 }
