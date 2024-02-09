@@ -10,7 +10,6 @@ namespace Pedal.Entities
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required string Brand { get; set; }
