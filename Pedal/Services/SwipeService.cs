@@ -1,4 +1,5 @@
 ﻿using Pedal.Entities;
+using Pedal.Entities.Enums;
 using Pedal.Repositories;
 
 namespace Pedal.Services
@@ -14,9 +15,9 @@ namespace Pedal.Services
             this.carService = carService;
         }
 
-        public async Task<Swipe> AddSwipeAsync(string swiperId, string swipedId, bool swipeDirection)
+        public async Task<Swipe> AddSwipeAsync(string swiperId, string swipedId, SwipeDirection swipeDirection)
         {
-            if (SwipeExists(swiperId, swipedId))
+            if (await SwipeExists(swiperId, swipedId))
             {
                 return await UpdateSwipeAsync(swiperId, swipedId, swipeDirection);
             }
@@ -28,18 +29,19 @@ namespace Pedal.Services
             {
                 throw new InvalidDataException($"Car (which is getting swiped) with id: {swipedId} does not exist.");
             }
-            return swipeRepository.CreateSwipeAsync(new Swipe()
+            return await swipeRepository.CreateSwipeAsync(new Swipe()
             {
+                Id = "",
                 SwipedId = swipedId,
                 SwiperId = swiperId,
                 SwipeDirection = swipeDirection,
                 SwipeTime = DateTime.Now,
-            }).Result;
+            });
         }
 
-        public async Task<Swipe[]> GetSwipesForIdAsync(string swipedId)
+        public async Task<Swipe[]> GetSwipesForIdAsync(string swipedId, SwipeDirection? swipeDirection)
         {
-            return (await swipeRepository.GetSwipesBySwipedIdAsync(swipedId)).ToArray();
+            return (await swipeRepository.GetSwipesBySwipedIdAsync(swipedId, swipeDirection)).ToArray();
         }
 
         public async Task<Swipe[]> GetSwipesByIdAsync(string swiperId)
@@ -47,20 +49,25 @@ namespace Pedal.Services
             return (await swipeRepository.GetSwipesBySwiperIdAsync(swiperId)).ToArray();
         }
 
-        public Car[] GetCarsSwipedOnBy(string swiperId)
+        public async Task<Car[]?> GetCarsSwipedOnByAsync(string swiperId, SwipeDirection? swipeDirection)
         {
-            throw new Exception();
+            if (!await carService.CarWithIdExistsAsync(swiperId))
+            {
+                throw new InvalidDataException($"Car (which is swiping) with id: {swiperId} does not exist.");
+            }
+            var swipes =  await swipeRepository.GetSwipesBySwiperIdAsync(swiperId, swipeDirection);
+            return await Task.WhenAll(swipes.Select(async x => await carService.GetCarByIdAsync(x.SwiperId)));
         }
 
-        public async Task<Car[]> GetCarsSwipedOnAsync(string swipedId)
+        public async Task<Car[]?> GetCarsSwipedOnAsync(string swipedId, SwipeDirection? swipeDirection)
         {
-            var swipes = await GetSwipesForIdAsync(swipedId);
+            var swipes = await GetSwipesForIdAsync(swipedId, swipeDirection);
             var tasks = swipes.Select(x => carService.GetCarByIdAsync(x.SwipedId));
             return await Task.WhenAll(tasks);
         }
 
 
-        public async Task<Swipe> UpdateSwipeAsync(string swiperId, string swipedId, bool swipeDirection)
+        public async Task<Swipe> UpdateSwipeAsync(string swiperId, string swipedId, SwipeDirection swipeDirection)
         {
             if (!await carService.CarWithIdExistsAsync(swiperId))
             {
@@ -70,32 +77,42 @@ namespace Pedal.Services
             {
                 throw new InvalidDataException($"Car (which is getting swiped) with id: {swipedId} does not exist.");
             }
-            var updatedSwipe = swipeRepository.GetBySwiperAndSwipedAsync(swiperId, swipedId).Result;
+            var updatedSwipe = await swipeRepository.GetBySwiperAndSwipedAsync(swiperId, swipedId);
             if (updatedSwipe == null)
             {
                 return await AddSwipeAsync(swiperId, swipedId, swipeDirection);
             }
             updatedSwipe.SwipeTime = DateTime.Now;
-            return swipeRepository.UpdateSwipeAsync(updatedSwipe).Result;
+            return await swipeRepository.UpdateSwipeAsync(updatedSwipe);
         }
 
-        public void DeleteSwipe(string swipeId)
+        public async void DeleteSwipeAsync(string swipeId)
         {
-            if (SwipeWithIdExists(swipeId))
+            if (await SwipeWithIdExistsAsync(swipeId))
             {
                 throw new InvalidOperationException($"Swipe with id: {swipeId} does not exist.");
             }
-            _ = swipeRepository.RemoveAsync(swipeId);
+            swipeRepository.RemoveAsync(swipeId).Wait();
         }
 
-        private bool SwipeWithIdExists(string swipeId)
+        private async Task<bool> SwipeWithIdExistsAsync(string swipeId)
         { 
-            return swipeRepository.GetAsync(swipeId).Result != null;
+            return (await swipeRepository.GetAsync(swipeId)) != null;
         }
 
-        private bool SwipeExists(string swiperId, string swipedId)
+        private async Task<bool> SwipeExists(string swiperId, string swipedId)
         {
-            return swipeRepository.GetBySwiperAndSwipedAsync(swiperId, swipedId).Result != null;
+            return (await swipeRepository.GetBySwiperAndSwipedAsync(swiperId, swipedId)) != null;
+        }
+
+        public async Task<Car[]?> GetMatches(string carId)
+        {
+            var swipes = await swipeRepository.GetMatchesAsync(carId);
+            if (swipes == null)
+                return null;
+            var tasks = swipes.Select(async s => await carService.GetCarByIdAsync(s.SwipedId));
+            var cars = await Task.WhenAll(tasks);
+            return cars;
         }
     }
 }
