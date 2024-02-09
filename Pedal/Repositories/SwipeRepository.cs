@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Pedal.Entities;
+using Pedal.Entities.Enums;
 using Pedal.Models;
 
 namespace Pedal.Repositories
@@ -68,8 +69,8 @@ namespace Pedal.Repositories
 
         public async Task<List<Swipe>?> GetMatchesAsync(string carId)
         {
-            var carsTheySwipedRightOn = (await GetSwipesBySwiperIdAsync(carId)).Where(x => x.SwipeDirection == true).Select(x => x.SwipedId).ToList();
-            return _swipesCollection.Find(x => x.SwipeDirection == true && carsTheySwipedRightOn.Contains(x.SwiperId)).ToList();
+            var carsTheySwipedRightOn = (await GetSwipesBySwiperIdAsync(carId)).Where(x => x.SwipeDirection == SwipeDirection.RIGHT).Select(x => x.SwipedId).ToList();
+            return _swipesCollection.Find(x => x.SwipeDirection == SwipeDirection.RIGHT && carsTheySwipedRightOn.Contains(x.SwiperId)).ToList();
         }
     }
 }
