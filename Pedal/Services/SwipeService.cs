@@ -33,7 +33,7 @@ namespace Pedal.Services
                 Id = "",
                 SwipedId = swipedId,
                 SwiperId = swiperId,
-                SwipeDirection = swipeDirection,
+                //SwipeDirection = swipeDirection,
                 SwipeTime = DateTime.Now,
             });
         }

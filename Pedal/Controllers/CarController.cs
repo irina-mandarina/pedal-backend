@@ -1,26 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
 using Pedal.Services;
 using Pedal.Entities;
+using Pedal.Models;
 
 namespace Pedal.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/cars")]
     public class CarController : ControllerBase
     {
-        private readonly CarService _carsService;
+        private readonly CarService carService;
 
         public CarController(CarService carsService) =>
-            _carsService = carsService;
+            carService = carsService;
 
         [HttpGet]
         public async Task<Car[]> Get() =>
-            await _carsService.GetCarsAsync();
+            await carService.GetCarsAsync();
 
         [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<Car>> Get(string id)
         {
-            var car = await _carsService.GetCarByIdAsync(id);
+            var car = await carService.GetCarByIdAsync(id);
 
             if (car is null)
             {
@@ -31,19 +32,18 @@ namespace Pedal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(
-            [FromBody] Car car)
+        public async Task<IActionResult> Post([FromBody] CarRequest car)
         {
 
-            var newCar = await _carsService.SignUpAsync(car);
+            await carService.SignUpAsync(car);
 
-            return CreatedAtAction(nameof(Get), new { id = newCar.Id }, newCar);
+            return Ok(car);
         }
 
         [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(Car updatedCar)
+        public async Task<IActionResult> Update([FromBody] Car updatedCar)
         {
-            var newCar = await _carsService.UpdateCarInfoAsync( updatedCar);
+            var newCar = await carService.UpdateCarInfoAsync(updatedCar);
 
             return Ok(updatedCar);
         }
@@ -52,7 +52,7 @@ namespace Pedal.Controllers
         public async Task<IActionResult> Delete(string id)
         {
 
-            await _carsService.DeleteCarAsync(id);
+            await carService.DeleteCarAsync(id);
             return Ok();
         }
     }

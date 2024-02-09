@@ -1,80 +1,71 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pedal.Entities;
+using Pedal.Entities.Enums;
+using Pedal.Models;
 using Pedal.Services;
+using System.IO.Pipes;
 
 namespace Pedal.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class SwipeController : ControllerBase
-    {
-        public SwipeService _swipesService;
+    //[Route("api/swipes")]
+    //[ApiController]
+    //public class SwipeController : ControllerBase
+    //{
+    //    private readonly SwipeService swipeService;
 
-        public SwipeController(SwipeService swipesService) =>
-            _swipesService = swipesService;
+    //    public SwipeController(SwipeService swipesService) =>
+    //        swipeService = swipesService;
 
-        //not implemented
-        [HttpGet]
-        public async Task<List<Swipe>> Get()
-        {
-            return new List<Swipe>();
-        }
+    //    [HttpGet("cars/{id}/swipes/received/left")]
+    //    public async Task<ActionResult<Swipe>> GetLeftSwipesForCar(string id)
+    //    {
+    //        //returns all the cars that didn't like a ceratin car
+    //        return Ok(await swipeService.GetSwipesForIdAsync(id, SwipeDirection.LEFT));
+    //    }
 
-        [HttpGet("{id:length(24)}")]
-        public ActionResult<Swipe> Get(string id)
-        {
-            //var car = _swipesService.GetSwipeById(id);
+    //    [HttpGet("cars/{id}/swipes/received/right")]
+    //    public async Task<ActionResult<Swipe>> GetRightSwipesForCar(string id)
+    //    {
+    //        //returns all the cars that liked a ceratin car
+    //        return Ok(await swipeService.GetSwipesForIdAsync(id, SwipeDirection.RIGHT));
+    //    }
 
-            //if (car is null)
-            //{
-            //    return NotFound();
-            //}
+    //    [HttpGet("cars/{id}/swipes/sent/left")]
+    //    public async Task<ActionResult<Swipe>> GetLeftSwipesByCar(string id)
+    //    {
+    //        //returns all the cars that weren't liked by a ceratin car
+    //        return Ok(await swipeService.GetSwipesByIdAsync(id, SwipeDirection.LEFT));
+    //    }
 
-            //return car;
-            return Ok();
+    //    [HttpGet("cars/{id}/swipes/sent/right")]
+    //    public async Task<ActionResult<Swipe>> GetRightSwipesByCar(string id)
+    //    {
+    //        //returns all the cars that were liked by a ceratin car
+    //        return Ok(await swipeService.GetSwipesByIdAsync(id, SwipeDirection.RIGHT));
+    //    }
 
-        }
 
-        [HttpPost]
-        public async Task<IActionResult> Post(Swipe newSwipe)
-        {
-            //await _swipesService.CreateAsync(newSwipe);
 
-            //return CreatedAtAction(nameof(Get), new { id = newSwipe.Id }, newSwipe);
-            return Ok();
-        }
+    //    [HttpPost]
+    //    public async Task<IActionResult> Post([FromBody]SwipeRequest newSwipe)
+    //    {
+    //        await swipeService.AddSwipeAsync(newSwipe);
+    //        return Ok(newSwipe);
+    //    }
 
-        [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(string id, Swipe updatedSwipe)
-        {
-            //var car = await _swipesService.GetAsync(id);
+    //    [HttpPut("{id:length(24)}")]
+    //    public async Task<IActionResult> Update(string id, Swipe updatedSwipe)
+    //    {
+    //        return NoContent();
+    //    }
 
-            //if (car is null)
-            //{
-            //    return NotFound();
-            //}
-
-            //updatedSwipe.Id = car.Id;
-
-            //await _swipesService.UpdateAsync(id, updatedSwipe);
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id:length(24)}")]
-        public async Task<IActionResult> Delete(string id)
-        {
-            //var car = await _swipesService.GetAsync(id);
-
-            //if (car is null)
-            //{
-            //    return NotFound();
-            //}
-
-            //await _swipesService.RemoveAsync(id);
-
-            return NoContent();
-        }
-    }
+    //    [HttpDelete("{id:length(24)}")]
+    //    public async Task<IActionResult> Delete(string id)
+    //    {
+    //        await swipeService.DeleteSwipeAsync(id);
+    //        return Ok();
+    //    }
+    //}
 }

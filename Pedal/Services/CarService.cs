@@ -2,6 +2,8 @@ using Pedal.Entities;
 using Pedal.Entities.Enums;
 using Pedal.Repositories;
 using BCrypt;
+using Pedal.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Pedal.Services
 {
@@ -64,22 +66,37 @@ namespace Pedal.Services
             return await carRepository.CreateCarAsync(car);
         }
 
-        public async Task<Car> SignUpAsync(Car car)
+        public async Task<Car> SignUpAsync(CarRequest carRequest)
         {
-            if (!ValidationService.IsValidEmail(car.Email))
+            if (!ValidationService.IsValidEmail(carRequest.Email))
             {
                 throw new InvalidDataException("Invalid email.");
             }
-            if (await CarWithEmailExistsAsync(car.Email))
+            if (await CarWithEmailExistsAsync(carRequest.Email))
             {
-                throw new InvalidOperationException($"Email: {car.Email} already registered.");
+                throw new InvalidOperationException($"Email: {carRequest.Email} already registered.");
             }
-            if (!ValidationService.IsValidPassword(car.Password))
+            if (!ValidationService.IsValidPassword(carRequest.Password))
             {
                 throw new InvalidDataException("Passwords must contain at least 8 symbols.");
             }
             
-            return await carRepository.CreateCarAsync(car);
+            return await carRepository.CreateCarAsync(new Car()
+                {
+                Id = "",
+                Email = carRequest.Email,
+                Password = carRequest.Password,
+                Brand = carRequest.Brand,
+                Model = carRequest.Model,           
+                YearOfProduction = carRequest.YearOfProduction,
+                Engine = carRequest.Engine,
+                Transmission = carRequest.Transmission,
+                Mileage = carRequest.Mileage,
+                Horsepower = carRequest.Horsepower,
+                Passions = carRequest.Passions,
+                CarCultures = carRequest.CarCultures,
+                PictureURLs = carRequest.PictureURLs,
+                } );
         }
 
         public async Task<Car> LogInAsync(string email, string password)
