@@ -9,10 +9,17 @@ namespace Pedal.Controllers
     [ApiController]
     public class MessageController : ControllerBase
     {
-        public MessageService _messagesService;
+        public MessageService messageService;
 
         public MessageController(MessageService messagesService) =>
-            _messagesService = messagesService;
+            messageService = messagesService;
+
+        [HttpGet("cars/{senderId}/messages/{receiverId}")]
+        public async Task<Message[]> GetMessagesBetweenUsers(string senderId, string receiverId)
+        {
+            return(await messageService.GetMessagesBetweenUsersAsync(senderId, receiverId));
+        }
+
 
         //not implemented
         [HttpGet]

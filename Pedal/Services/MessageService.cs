@@ -1,4 +1,5 @@
-﻿using Pedal.Repositories;
+﻿using Pedal.Entities;
+using Pedal.Repositories;
 
 namespace Pedal.Services
 {
@@ -9,6 +10,11 @@ namespace Pedal.Services
         public MessageService(MessageRepository messageRepository)
         {
             this.messageRepository = messageRepository;
+        }
+
+        public async Task<Message[]> GetMessagesBetweenUsersAsync(string senderId, string receiverId)
+        {
+            return(await messageRepository.GetMessagesBetweenUsersAsync(senderId, receiverId)).ToArray();
         }
     }
 }

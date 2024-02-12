@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Pedal.Entities;
 using Pedal.Entities.Enums;
 using Pedal.Models;
 using Pedal.Services;
-using System.IO.Pipes;
 
 namespace Pedal.Controllers
 {
