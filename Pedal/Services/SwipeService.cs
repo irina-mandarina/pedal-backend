@@ -93,9 +93,9 @@ namespace Pedal.Services
             return await swipeRepository.UpdateSwipeAsync(updatedSwipe);
         }
 
-        public async void DeleteSwipeAsync(string swipeId)
+        public async Task DeleteSwipeAsync(string swipeId)
         {
-            if (await SwipeWithIdExistsAsync(swipeId))
+            if (!(await SwipeWithIdExistsAsync(swipeId)))
             {
                 throw new InvalidOperationException($"Swipe with id: {swipeId} does not exist.");
             }
@@ -103,8 +103,9 @@ namespace Pedal.Services
         }
 
         private async Task<bool> SwipeWithIdExistsAsync(string swipeId)
-        { 
-            return (await swipeRepository.GetAsync(swipeId)) != null;
+        {
+            var swipe = await swipeRepository.GetAsync(swipeId);
+            return swipe != null;
         }
 
         private async Task<bool> SwipeExists(string swiperId, string swipedId)
