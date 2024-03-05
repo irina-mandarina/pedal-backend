@@ -49,6 +49,11 @@ namespace Pedal.Repositories
             return updatedMessage;
         }
 
+        public async Task<Message?> GetBySenderAndReceiverAsync(string senderId, string receiverId)
+        {
+            return await _messagesCollection.Find(x => x.SenderID == senderId && x.ReceiverID == receiverId).FirstOrDefaultAsync();
+        }
+
         public async Task<Message[]> GetMessagesBetweenUsersAsync(string senderId, string receiverId)
         {
             var messagesSent = await _messagesCollection.Find(x => x.SenderID == senderId && x.ReceiverID == receiverId).ToListAsync();
