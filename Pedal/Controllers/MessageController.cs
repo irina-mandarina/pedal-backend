@@ -20,6 +20,11 @@ namespace Pedal.Controllers
             return(await messageService.GetMessagesBetweenUsersAsync(senderId, receiverId));
         }
 
+        [HttpGet("cars/{senderId}/messages")]
+        public async Task<Message[]> GetMessagesByUser(string senderId)
+        {
+            return(await messageService.GetMessagesByUserIdAsync(senderId));
+        }
 
         //not implemented
         [HttpGet]

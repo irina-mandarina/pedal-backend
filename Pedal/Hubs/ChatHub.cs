@@ -13,21 +13,13 @@ namespace Pedal.Hubs
         {
             this.messageService = messageService;
         }
-        public async Task NewMessage(string SenderID, string ReceiverID, string Text, DateTime Timestamp)
+        public async Task NewMessage(MessageRequest message)
         {
-            var messageRequest = new MessageRequest
-            {
-                Text = Text,
-                Timestamp = Timestamp,
-                SenderID = SenderID,
-                ReceiverID = ReceiverID
-            };
-
-            await messageService.AddMessageAsync(messageRequest);
+            await messageService.AddMessageAsync(message);
 
 
             await Clients.All.SendAsync("ReceiveNewMessage",
-                SenderID, ReceiverID, Text, Timestamp);
+                message);
         }
     }
 }

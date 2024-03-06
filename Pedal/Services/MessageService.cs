@@ -39,7 +39,12 @@ namespace Pedal.Services
 
         public async Task<bool> MessageExists(string senderId, string receiverId)
         {
-            return (await messageRepository.GetBySenderAndReceiverAsync(senderId, receiverId)) != null;
+            return(await messageRepository.GetBySenderAndReceiverAsync(senderId, receiverId)) != null;
+        }
+
+        public async Task<Message[]> GetMessagesByUserIdAsync(string senderId)
+        {
+            return(await messageRepository.GetMessagesByUser(senderId)).ToArray();
         }
     }
 }
