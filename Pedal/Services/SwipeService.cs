@@ -15,7 +15,7 @@ namespace Pedal.Services
             this.swipeRepository = swipeRepository;
             this.carService = carService;
         }
-
+        
         public async Task<Swipe> AddSwipeAsync(SwipeRequest swipeRequest)
         {
             if (await SwipeExists(swipeRequest.SwiperId, swipeRequest.SwipedId))

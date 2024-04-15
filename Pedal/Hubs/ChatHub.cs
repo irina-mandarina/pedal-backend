@@ -21,5 +21,13 @@ namespace Pedal.Hubs
             await Clients.All.SendAsync("ReceiveNewMessage",
                 message);
         }
+
+        public async Task SendToUser(MessageRequest message, string receiverConnectionId)
+        {
+            await Clients.Client(receiverConnectionId).SendAsync("ReceiveNewMessage",
+                message);
+        }
+
+        public string GetConnectionId() => Context.ConnectionId;
     }
 }
