@@ -103,7 +103,7 @@ namespace Pedal.Services
         {
             if (!await CarWithEmailExistsAsync(email))
             {
-                throw new InvalidOperationException($"Car with email: {email} does not exist.");
+                throw new InvalidOperationException($"Car with email {email} does not exist.");
             }
             var car = await carRepository.GetCarByEmailAsync(email);
             if (BCrypt.Net.BCrypt.Verify(password, car.Password))
@@ -147,7 +147,7 @@ namespace Pedal.Services
             return car != null;
         }
 
-        private async Task<bool> CarWithEmailExistsAsync(string email)
+        public async Task<bool> CarWithEmailExistsAsync(string email)
         {
             var car = await carRepository.GetCarByEmailAsync(email);
             return car != null;

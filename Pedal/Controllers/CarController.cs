@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Pedal.Controllers
 {
@@ -25,47 +26,81 @@ namespace Pedal.Controllers
             jwtService = JwtService;
         }
 
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<Car[]> Get() =>
-            await carService.GetCarsAsync();
-
-        [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<Car>> Get(string id)
+        [Authorize]
+        [HttpGet("list")]
+        public async Task<ActionResult<CarResponse[]>> Get()
         {
-            var car = await carService.GetCarByIdAsync(id);
+            var result =  await carService.GetCarsAsync();
+            var carResponses = result.Select(car => new CarResponse(car));
+            return Ok(new { Cars = carResponses });
+        }
 
+        [HttpGet("{id:length(24)?}")]
+        public async Task<ActionResult<CarResponse>> Get(string? id = null)
+        {
+            Car car;
+            if(id is null)
+            {
+                var carId = HttpContext.Items["CarId"]!.ToString();
+                car = await carService.GetCarByIdAsync(carId!);
+            }
+            else
+            {
+                car = await carService.GetCarByIdAsync(id);
+            }
             if (car is null)
             {
                 return NotFound();
             }
 
-            return car;
+            var carResponse = new CarResponse(car);
+            return Ok(new { Car = carResponse });
         }
 
         [AllowAnonymous]
+        [HttpPost("/api/signup/check")]
+
+        //generate a SignUp Check method to check if email is already in use and if password is valid using the CarLoginRequest model
+        public async Task<IActionResult> SignUpCheck([FromBody] CarLoginRequest loginRequest)
+        {
+            try
+            {
+                if (!ValidationService.IsValidEmail(loginRequest.Email))
+                {
+                    throw new InvalidDataException("Invalid email.");
+                }
+                if (await carService.CarWithEmailExistsAsync(loginRequest.Email))
+                {
+                    throw new InvalidOperationException($"Email: {loginRequest.Email} already registered.");
+                }
+                if (!ValidationService.IsValidPassword(loginRequest.Password))
+                {
+                    throw new InvalidDataException("Passwords must contain at least 8 symbols.");
+                }
+
+                return Ok();
+            }
+            catch (InvalidDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
+
+
+        [AllowAnonymous]
         [HttpPost("/api/signup")]
-        public async Task<IActionResult> Signup([FromBody] CarRequest car)
+        public async Task<IActionResult> Signup([FromBody] CarRequest signUpRequest)
         {
 
-            await carService.SignUpAsync(car);
+            var car = await carService.SignUpAsync(signUpRequest);
 
-            var carResponse = new CarResponse
-            {
-                Email = car.Email,
-                Brand = car.Brand,
-                Model = car.Model,
-                YearOfProduction = car.YearOfProduction,
-                Engine = car.Engine,
-                Transmission = car.Transmission,
-                Mileage = car.Mileage,
-                Horsepower = car.Horsepower,
-                Passions = car.Passions,
-                CarCultures = car.CarCultures,
-                PictureURLs = car.PictureURLs
-            };
+            var carResponse = new CarResponse(car);
 
-            return Ok(carResponse);
+            return Ok(new { Car = carResponse });
         }
 
         [AllowAnonymous]
@@ -76,20 +111,7 @@ namespace Pedal.Controllers
             {
                 var car = await carService.LogInAsync(loginRequest.Email, loginRequest.Password);
 
-                var carResponse = new CarResponse
-                {
-                    Email = car.Email,
-                    Brand = car.Brand,
-                    Model = car.Model,
-                    YearOfProduction = car.YearOfProduction,
-                    Engine = car.Engine,
-                    Transmission = car.Transmission,
-                    Mileage = car.Mileage,
-                    Horsepower = car.Horsepower,
-                    Passions = car.Passions,
-                    CarCultures = car.CarCultures,
-                    PictureURLs = car.PictureURLs
-                };
+                var carResponse = new CarResponse(car);
 
                 var tokenSignature = jwtService.IssueNew(car);
 
@@ -109,38 +131,12 @@ namespace Pedal.Controllers
             }
         }
 
-        //[HttpPost("car/isvalid")]
-
-        //public async Task<IActionResult> IsValid(string token)
-        //{
-        //    var isValid = await jwtService.IsValidAsync(token);
-        //    var isExpired = jwtService.IsExpired(token);
-
-        //    if (isValid)
-        //    {
-        //        if (isExpired)
-        //        {
-        //            return Ok("Token is valid but expired.");
-        //        }
-        //        else
-        //        {
-        //            return Ok("Token is valid.");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return BadRequest("Token is not valid.");
-        //    }
-        //}
-
-
-
         [HttpPut("{id:length(24)}")]
         public async Task<IActionResult> Update([FromBody] Car updatedCar)
         {
             var newCar = await carService.UpdateCarInfoAsync(updatedCar);
 
-            return Ok(updatedCar);
+            return Ok(new { Car = updatedCar });
         }
 
         [HttpDelete("{id:length(24)}")]
@@ -148,7 +144,7 @@ namespace Pedal.Controllers
         {
 
             await carService.DeleteCarAsync(id);
-            return Ok();
+            return Ok(new { CarId = id });
         }
     }
 }

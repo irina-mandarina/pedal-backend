@@ -24,13 +24,15 @@ namespace Pedal.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim("sub", car.Id),
+                new Claim(ClaimTypes.NameIdentifier, car.Id),
+                new Claim(ClaimTypes.Email, car.Email),
+                new Claim(ClaimTypes.GivenName, car.Brand + car.Model)
             };
             var token = new JwtSecurityToken(
                 _config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(5),
+                expires: DateTime.Now.AddHours(1),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -51,23 +53,47 @@ namespace Pedal.Services
             return (now > securityToken.ValidTo);
         }
 
-        public async Task<bool> IsValidAsync(string token)
+        //public async Task<bool> IsValidAsync(string token)
+        //{
+        //    var handler = new JsonWebTokenHandler();
+        //    var validationParameters = new TokenValidationParameters
+        //    {
+        //        ValidIssuer = _config["Jwt:Issuer"],
+        //        ValidAudience = _config["Jwt:Audience"],
+        //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!))
+        //    };
+        //    TokenValidationResult result = await handler.ValidateTokenAsync(token, validationParameters);
+
+        //    if (IsExpired(token))
+        //    {
+        //        throw new SecurityTokenException("Token has expired.");
+        //    }
+
+        //    return (result.IsValid);
+        //}
+
+        public async Task<TokenValidationResult> IsValidAsync(string token)
         {
-            var handler = new JsonWebTokenHandler();
-            var validationParameters = new TokenValidationParameters
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+
+            var handler  = new JsonWebTokenHandler();
+            var validationResult = await handler.ValidateTokenAsync(token, new TokenValidationParameters
             {
+                ValidateIssuerSigningKey = true,
                 ValidIssuer = _config["Jwt:Issuer"],
                 ValidAudience = _config["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!))
-            };
-            TokenValidationResult result = await handler.ValidateTokenAsync(token, validationParameters);
+                IssuerSigningKey = securityKey,
+            });
 
-            if (IsExpired(token))
+                
+            if (validationResult.Exception != null)
             {
-                throw new SecurityTokenException("Token has expired.");
+                var res = validationResult.Exception;
+                throw validationResult.Exception;
             }
 
-            return (result.IsValid);
+            return validationResult;
+            
         }
 
 

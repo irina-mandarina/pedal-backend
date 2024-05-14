@@ -1,10 +1,12 @@
+global using Pedal.Services;
+global using Pedal.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Pedal.Hubs;
 using Pedal.Models;
 using Pedal.Repositories;
-using Pedal.Services;
 using Pedal.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
@@ -22,7 +24,8 @@ builder.Services.AddSingleton<MessageRepository>();
 builder.Services.AddSingleton<CarService>();
 builder.Services.AddSingleton<SwipeService>();
 builder.Services.AddSingleton<MessageService>();
-builder.Services.AddSingleton<JwtService>();
+builder.Services.AddScoped<JwtService>();
+//builder.Services.AddSingleton<JwtService>();
 
 
 // Add services to the container.
@@ -32,10 +35,13 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-}).AddJwtBearer(o =>
+}).AddJwtBearer(options =>
 {
-    o.TokenValidationParameters = new TokenValidationParameters
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
+        ValidateIssuerSigningKey = true,
         ValidIssuer = config["Jwt:Issuer"],
         ValidAudience = config["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey
@@ -43,11 +49,18 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = false,
-        ValidateIssuerSigningKey = true
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+            .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+            .RequireAuthenticatedUser()
+            .Build();
+});
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -73,6 +86,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseJwtMiddleware();
 
 app.UseAuthentication();
 app.UseAuthorization();
